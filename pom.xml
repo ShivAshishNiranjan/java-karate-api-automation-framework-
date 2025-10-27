@@ -1,0 +1,116 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.shivashish</groupId>
+    <artifactId>java-karate-api-automation-framework</artifactId>
+    <version>1.0.0</version>
+    <name>API Tests – Karate</name>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- Use the latest compatible versions from Maven Central -->
+        <karate.version>1.5.0</karate.version>
+        <junit.version>5.10.2</junit.version>
+        <surefire.version>3.2.5</surefire.version>
+        <failsafe.version>3.2.5</failsafe.version>
+    </properties>
+
+    <dependencies>
+        <!-- Karate with JUnit 5 runner -->
+        <dependency>
+            <groupId>io.karatelabs</groupId>
+            <artifactId>karate-junit5</artifactId>
+            <version>${karate.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+        <!-- JUnit 5 engine (Surefire can add automatically, but explicit is nice) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- (Optional) JSON schema, Faker, etc., if you want -->
+        <!--
+        <dependency>
+          <groupId>com.github.javafaker</groupId>
+          <artifactId>javafaker</artifactId>
+          <version>1.0.2</version>
+          <scope>test</scope>
+        </dependency>
+        -->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Surefire runs unit tests (including Karate + JUnit 5). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/Run*.java</include>
+                    </includes>
+                    <!-- parallel forks for speed; tune for your CI -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+                </configuration>
+            </plugin>
+
+            <!-- Failsafe is useful if you later want a separate integration-test phase -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Handy env separation via Maven profiles -->
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <karate.env>dev</karate.env>
+                <base.url>https://dev.api.example.com</base.url>
+            </properties>
+        </profile>
+        <profile>
+            <id>qa</id>
+            <properties>
+                <karate.env>qa</karate.env>
+                <base.url>https://qa.api.example.com</base.url>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <karate.env>prod</karate.env>
+                <base.url>https://api.example.com</base.url>
+            </properties>
+        </profile>
+    </profiles>
+</project>
